@@ -7,6 +7,7 @@
  * AM
  */
 
+#include "proba.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -106,8 +107,15 @@ int main()
    SSP instance;
    double density = genSSP(n,&instance,100);
    printSSP(instance);
-   printf("Density is %lf\n",density);
-   freeSSP(&instance);
+
+   unsigned long set[4] = {22, 44, 59, 86};
+
+   //printf("%i",big_verification(set, 4));
+
+   normal_execution(instance.set, instance.n, instance.target);
+   //execution(instance.set, instance.n, instance.target, 10);
+   //printf("Density is %lf\n",density);
+   //freeSSP(&instance);
    return 0;
 }
 
