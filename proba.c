@@ -1,3 +1,6 @@
+/**
+gcc -o ssp ssp.c proba.c -lm && ./ssp
+*/
 
 #include <time.h>
 #include <math.h>
@@ -6,11 +9,11 @@
 #include <stdbool.h>
 
 int SHUFFLING_PROBABILITY = 2;  // in fact the probability is (SHUFFLING_PROBABILITY)^(-1)
+int NB_ITERATION = 1000;        // Number of try before giving up
+int SUBSET_SIZE = 8;            // Size of the subset
 
 /**
- * 
- * Casually print a tab
- * 
+ * Print a tab
 */
 void printSet(unsigned long * set, int size) {
     printf("[");
@@ -18,8 +21,7 @@ void printSet(unsigned long * set, int size) {
         if (i==size-1) {
             printf("%lu", set[i]);
         } else {
-            printf("%lu", set[i]);
-            printf(", ");
+            printf("%lu, ", set[i]);
         }
     }
     printf("]\n");
@@ -55,7 +57,7 @@ void shuffle_StackOverflow(unsigned long *array, int n) {
 }
 
 /**
- * 
+ * Calcule "stupide" de la solution sur le sous-ensemble
 */
 bool compute(unsigned long* set, int borne, unsigned long target) {
     int computed_set_size = pow(2, borne);
@@ -77,17 +79,22 @@ bool compute(unsigned long* set, int borne, unsigned long target) {
     return false;
 }
 
+/**
+ * Execution of the probabilistic approch
+*/
 bool keepGoing(unsigned long* set, int size, unsigned long target, int maxIter, int subset_size) {
     int iter = 0;
     bool validate = false;
+    // We run "maxIter" iterations (we stop befor if we find a solution)
     while (!validate && iter<maxIter) {
-        srand(time(NULL));
+        srand(time(NULL)); // Reset the seed
         //shuffle_louis(set, size);
-        shuffle_StackOverflow(set, size);
-        validate = compute(set, subset_size, target);
+        shuffle_StackOverflow(set, size); // Shuffle the tab
+        validate = compute(set, subset_size, target); // Execute the "stupid" algo on the subset
         iter++;
     }
     if (validate) {
+        // Display the solution's subset (may contain useless elements)
         printf("Solution : ");
         printSet(set, subset_size);
     }
@@ -95,21 +102,10 @@ bool keepGoing(unsigned long* set, int size, unsigned long target, int maxIter, 
     return validate;
 }
 
-void normal_execution(unsigned long * set, int set_size, unsigned long target) {
-    int nb_iteration = 100000000;
-    int subset_size = 9;
-    printf("Running with : %i iterations / subset size of %i / size of set : %i\n",nb_iteration,subset_size,set_size);
-    bool soluce = keepGoing(set, set_size, target, nb_iteration, subset_size);
-}
-
-void personalised_execution(unsigned long * set, int set_size, unsigned long target, int nb_loop, int nb_iter, int subset_size) {
-    int i;
-    int success = 0;
-    for (i=0 ; i<nb_loop ; i++){
-        if(keepGoing(set, set_size, target, nb_iter, subset_size)){
-            success++;
-        }
-    }
-    float percent = success * 100 / nb_loop;
-    printf("%i success on %i iterations : rate of %f percents\n",success, nb_loop, percent);
+/**
+ * Execute the probabilistic approch of the problem
+*/
+void execution(unsigned long * set, int set_size, unsigned long target) {
+    printf("Running with : %i iterations / subset size of %i / set size of : %i\n",nb_iteration,subset_size,set_size); // Recap
+    bool soluce = keepGoing(set, set_size, target, NB_ITERATION, SUBSET_SIZE); // execution
 }

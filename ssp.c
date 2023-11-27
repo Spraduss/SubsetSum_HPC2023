@@ -16,8 +16,7 @@
 // - "solution" is an array of unsigned int that contains one of the known solutions (binary)
 // - "target" is the (unsigned long) integer target
 // - "set" is the pointer to the array of (unsigned long) integer values
-struct ssp
-{
+struct ssp{
    unsigned int n;
    unsigned int* solution;
    unsigned long target;
@@ -26,9 +25,8 @@ struct ssp
 typedef struct ssp SSP;
 
 // SSP printer
-void printSSP(SSP instance)
-{
-   int i;
+void printSSP(SSP instance){
+   unsigned int i;
    printf("Subset-Sum instance (n = %u, target = %lu)\n",instance.n,instance.target);
    printf("Set (solution in binary) = {");
    for (i = 0; i < instance.n; i++)
@@ -40,12 +38,11 @@ void printSSP(SSP instance)
 }
 
 // log2 with bit shifts
-unsigned int ln(unsigned long number)
-{
-   unsigned int log = 0L;
+unsigned int ln(unsigned long number){
+   unsigned int log = 0UL;
    while (number > 0)
    {
-      number = number << 1;
+      number = number >> 1; // correction of the bit shift
       log++;
    };
    return log;
@@ -56,10 +53,11 @@ unsigned int ln(unsigned long number)
 // - "instance" is a pointer to an 'empty' variable of type SSP (input and output)
 // - "max" is the maximum allowed value for the integers in the set (>1, input)
 // The returning value is the 'density' of the instance
-double genSSP(int n,SSP *instance,unsigned long max)
-{
-   int i,nbits,element;
-   unsigned long current_max = 0L;
+double genSSP(int n,SSP *instance,unsigned long max){
+   int i;
+   unsigned int nbits;
+   unsigned long element;
+   unsigned long current_max = 0;
    double density = 0.0;
 
    // initializing the instance (we suppose that no memory is associated to inner pointers)
@@ -74,7 +72,7 @@ double genSSP(int n,SSP *instance,unsigned long max)
    // creating the instance with one of its solutions
    for (i = 0; i < n; i++)
    {
-      element= 1L + rand()%(max - 1);
+      element= 1UL + rand()%(max - 1);
       if (current_max < element)
       {
          current_max = element;
@@ -94,15 +92,14 @@ double genSSP(int n,SSP *instance,unsigned long max)
 }
 
 // freeSSP
-void freeSSP(SSP *instance)
-{
+void freeSSP(SSP *instance){
    free(instance->solution);
    free(instance->set);
 }
 
+
 // main
-int main()
-{
+int main(){
    int n = 10;
    SSP instance;
    double density = genSSP(n,&instance,100);
@@ -112,10 +109,10 @@ int main()
 
    //printf("%i",big_verification(set, 4));
 
-   normal_execution(instance.set, instance.n, instance.target);
+   execution(instance.set, instance.n, instance.target);
    //execution(instance.set, instance.n, instance.target, 10);
    //printf("Density is %lf\n",density);
-   //freeSSP(&instance);
+   freeSSP(&instance);
    return 0;
 }
 
