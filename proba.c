@@ -106,6 +106,6 @@ bool keepGoing(unsigned long* set, int size, unsigned long target, int maxIter, 
  * Execute the probabilistic approch of the problem
 */
 void execution(unsigned long * set, int set_size, unsigned long target) {
-    printf("Running with : %i iterations / subset size of %i / set size of : %i\n",nb_iteration,subset_size,set_size); // Recap
+    printf("Running with : %i iterations / subset size of %i / set size of : %i\n",NB_ITERATION,SUBSET_SIZE,set_size); // Recap
     bool soluce = keepGoing(set, set_size, target, NB_ITERATION, SUBSET_SIZE); // execution
 }
