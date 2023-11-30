@@ -23,9 +23,9 @@ void printSet(unsigned long * tab, int n) {
 
 int main() {
     unsigned long TARGET;
-    size_t SET_SIZE = 1000;
+    size_t SET_SIZE = 10000;
     size_t SUBSET_SIZE = 10;
-    int LOOP = 10000000;
+    int LOOP = 5000000;
     unsigned long max = 300000000;
     clock_t start, end;
     double cpu_time_used;
@@ -35,26 +35,26 @@ int main() {
     // Remplissage du tableau avec des nombres
     int i;
     for (i=0 ; i<SET_SIZE ; i++) {
-        SET[i] = rand()%max;
+        SET[i] = 2 * (rand()%max);
     }
     TARGET = SET[12] + SET[23] + SET[84] + SET[90] + SET[0] + SET[99];
     printf("Solution possible : %lu, %lu, %lu, %lu, %lu, %lu, => %lu\n\n", SET[12], SET[23], SET[84], SET[90], SET[0], SET[99], TARGET);
-/*
+
     // Exécution parallèle
     start = clock();
     execution_test_p(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time // : %f\n\n", cpu_time_used);
-*/
 
+/*
     // Exécution séquentielle
     start = clock();
-    execution_test_seq(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
+    execution_test_seq(SET, (TARGET), SET_SIZE, SUBSET_SIZE, LOOP);
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time SEQ : %f\n\n", cpu_time_used);
-
+*/
     free(SET);
 }
 

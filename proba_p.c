@@ -7,7 +7,6 @@
 
 unsigned int NTHREADS = 5;
 
-unsigned long * SUBSET_p;
 unsigned long TARGET_p;
 unsigned long * SET_p;
 size_t SET_SIZE_p;
@@ -37,7 +36,7 @@ Le i-ème bit indique si wi est inclu dans la solution (1 = oui / 0 = non)
 1101 => w1 & w3 & w4 / (1+3+4)
 1111 => w1 & w2 & w3 & w4 / (1+2+3+4)
 */
-void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero) {
+void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero, unsigned long* subset_p) {
     printf("Precise solution : [ ");
     int nbOfConsideredBits = 0;
     // We count the number of useful bits
@@ -46,6 +45,7 @@ void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero)
     }
     int i;
     // We go through all useful bits
+    //#pragma omp parallel for
     for (i=0 ; i<nbOfConsideredBits ; i++){
         // Creation of the mask to only consider the i-th bit of "indice_of_zero"
         int mask =  1 << i;
@@ -53,7 +53,7 @@ void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero)
         int bit = mask_applyed >> i;
         // If the bit is 1 : The i-th number of the subset is part of the solution
         if (bit==1) {
-            printf("%lu ", SUBSET_p[i]);
+            printf("%lu ", subset_p[i]);
         }
     }
     printf("]\n");
@@ -62,7 +62,7 @@ void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero)
 /**
  * Calcule "stupide" de la solution sur le sous-ensemble
 */
-bool compute_p() {
+bool compute_p(unsigned long* subset_p) {
     int computed_set_size = pow(2, SUBSET_SIZE_p); // size of the set containing all the possibilities ( 2^n )
     unsigned long* computed_set = (unsigned long*)calloc(computed_set_size, sizeof(unsigned long));
     /* Execution of the algorithm presented within the article
@@ -73,11 +73,11 @@ bool compute_p() {
     computed_set[0] = TARGET_p;
     int cs_index = 1;
     for (int i=0 ; i<SUBSET_SIZE_p ; i++){
-        unsigned long w_i = SUBSET_p[i];
+        unsigned long w_i = subset_p[i];
         for (int j=0 ; j<cs_index ; j++){
             computed_set[cs_index+j] = computed_set[j] - w_i;
             if (computed_set[cs_index+j]==0) {
-                PrintPreciseSolution_p(computed_set, (cs_index+j));
+                PrintPreciseSolution_p(computed_set, (cs_index+j), subset_p);
                 free(computed_set);
                 return true;
             }
@@ -108,7 +108,7 @@ bool isIn_p(int * indices, unsigned int indices_size, int target) {
 /**
  * Randomly pick "SUBSET_SIZE" indices between 0 and "SET_SIZE", and fill the subset with the corresponding values
 */
-void getSubset_p() {
+void getSubset_p(unsigned long* subset_p) {
     int * indices = (int*)calloc(SUBSET_SIZE_p, sizeof(int));
     int i;
     for (i=0 ; i<SUBSET_SIZE_p ; i++) {
@@ -117,7 +117,7 @@ void getSubset_p() {
             randomIndice = (randomIndice + 1)%SET_SIZE_p;
         }
         indices[i] = randomIndice;
-        SUBSET_p[i] = SET_p[randomIndice];
+        subset_p[i] = SET_p[randomIndice];
     }
     free(indices);
 }
@@ -128,30 +128,21 @@ void getSubset_p() {
 bool keepGoing_p() {
     bool validate = false;
     // Impact of shuffling task
-    clock_t start_shuffle, end_shuffle;
-    double cpu_time_used_shuffle = ((double) (0.0)) / CLOCKS_PER_SEC;
-    clock_t start_compile, end_compile;
-    double cpu_time_used_compile = ((double) (0.0)) / CLOCKS_PER_SEC;
     // We run "maxIter" iterations (we stop befor if we find a solution)
     int iter;
-    #pragma omp parallel for private(iter) shared(validate) num_threads(NTHREADS)
+    unsigned long subset_p[SUBSET_SIZE_p];
+    #pragma omp parallel for private(iter, subset_p) shared(validate) num_threads(NTHREADS)
     for (iter=0 ; iter<LOOP_p ; iter++) {
-        printf("Iter = %i", iter);
         if (validate) continue;
-
-        start_shuffle = clock();
-        getSubset_p();
-        end_shuffle = clock();
-        cpu_time_used_shuffle += ((double) (end_shuffle - start_shuffle)) / CLOCKS_PER_SEC;
-
-        start_compile = clock();
-        validate = compute_p(); // Execute the "stupid" algo on the subset
-        end_compile = clock();
-        cpu_time_used_compile += ((double) (end_compile - start_compile)) / CLOCKS_PER_SEC;
+        getSubset_p(subset_p);
+        bool tmp = compute_p(subset_p); // Execute the "stupid" algo on the subset
+        
+        #pragma omp critical
+        {
+            validate = validate || tmp;
+        }
 
     }
-    printf("Shuffling time : %f\n", cpu_time_used_shuffle);
-    printf("Stupid time : %f\n", cpu_time_used_compile);
     printf("%d, after %i iterations\n", validate, iter);
     return validate;
 }
@@ -166,7 +157,6 @@ void execution_test_p(unsigned long* set, unsigned long target, size_t set_size,
     SET_SIZE_p = set_size;
     SUBSET_SIZE_p = subset_size;
     LOOP_p = loop;
-    SUBSET_p[SUBSET_SIZE_p];
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p); // Recap
     bool soluce = keepGoing_p(); // execution
 }
