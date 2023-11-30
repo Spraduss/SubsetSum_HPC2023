@@ -12,23 +12,48 @@ size_t SET_SIZE;
 size_t SUBSET_SIZE;
 int LOOP;
 
-/**
- * Print a tab
+/*
+[t, t-w1, t-w2, t-w1-w2, t-w3, t-w1-w3, t-w1-w2-w3, t-w4, t-w1-w4, t-w2-w4, t-w1-w2-w4, t-w3-w4, t-w1-w3-w4, t-w1-w2-w3-w4]
+[0,    1,    2,       3,    4        5,          6,    7        8,       9,         10,      11,         12,            13]
+
+indice vers le binaire
+Le i-ème bit indique si wi est inclu dans la solution (1 = oui / 0 = non)
+
+0000 /
+0001 => w1 / (1)
+0010 => w2 / (2)
+0011 => W1 & w2 / (1+2)
+0100 => w3 / (3)
+0101 => w1 & w3 / (1+3)
+0110 => w2 & w3 / (2+3)
+0111 => w1 & w2 & w3 / (1+2+3)
+1000 => w4 / (4)
+1001 => w1 & w4 / (1+4)
+1010 => w2 & w4 / (2+4)
+1011 => w1 & w2 & w4 / (1+2+4)
+1100 => w3 & w4 / (3+4)
+1101 => w1 & w3 & w4 / (1+3+4)
+1111 => w1 & w2 & w3 & w4 / (1+2+3+4)
 */
-void printSet(unsigned long * tab, int n) {
-    printf("[");
-    for (int i=0 ; i<n ; i++) {
-        if (i==n-1) {
-            printf("%lu", tab[i]);
-        } else {
-            printf("%lu, ", tab[i]);
+void PrintPreciseSolution(unsigned long* processed_subset, int indice_of_zero) {
+    printf("Precise solution : [ ");
+    int nbOfConsideredBits = 0;
+    // We count the number of useful bits
+    while(pow(2, nbOfConsideredBits)<indice_of_zero) {
+        nbOfConsideredBits += 1;
+    }
+    // We go through all useful bits
+    for (int i=0 ; i<nbOfConsideredBits ; i++){
+        // Creation of the mask to only consider the i-th bit of "indice_of_zero"
+        int mask =  1 << i;
+        int mask_applyed = indice_of_zero & mask;
+        int bit = mask_applyed >> i;
+        // If the bit is 1 : The i-th number of the subset is part of the solution
+        if (bit==1) {
+            printf("%lu ", SUBSET[i]);
         }
     }
     printf("]\n");
-}
-
-void getPreciseSolution() {
-    
 }
 
 /**
@@ -49,6 +74,7 @@ bool compute() {
         for (int j=0 ; j<cs_index ; j++){
             computed_set[cs_index+j] = computed_set[j] - w_i;
             if (computed_set[cs_index+j]==0) {
+                PrintPreciseSolution(computed_set, (cs_index+j));
                 free(computed_set);
                 return true;
             }
@@ -87,7 +113,6 @@ void getSubset() {
         indices[i] = randomIndice;
         SUBSET[i] = SET[randomIndice];
     }
-    //printSet(SUBSET, SUBSET_SIZE);
     free(indices);
 }
 
@@ -95,7 +120,6 @@ void getSubset() {
  * Execution of the probabilistic approch
 */
 bool keepGoing() {
-    //srand(time(0));
     int iter = 0;
     bool validate = false;
     // Impact of shuffling task
@@ -119,11 +143,6 @@ bool keepGoing() {
 
         iter++;
         free(SUBSET);
-    }
-    if (validate) {
-        // Display the solution's subset (may contain useless elements)
-        printf("Solution : ");
-        printSet(SET, SUBSET_SIZE);
     }
     printf("Shuffling time : %f\n", cpu_time_used_shuffle);
     printf("Stupid time : %f\n", cpu_time_used_compile);
