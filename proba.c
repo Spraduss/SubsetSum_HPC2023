@@ -2,13 +2,14 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdbool.h>
 
-unsigned long * SET;
 unsigned long * SUBSET;
+unsigned long TARGET;
+unsigned long * SET;
 size_t SET_SIZE;
 size_t SUBSET_SIZE;
-unsigned long TARGET;
 int LOOP;
 
 /**
@@ -26,6 +27,10 @@ void printSet(unsigned long * tab, int n) {
     printf("]\n");
 }
 
+void getPreciseSolution() {
+    
+}
+
 /**
  * Calcule "stupide" de la solution sur le sous-ensemble
 */
@@ -40,7 +45,7 @@ bool compute() {
     computed_set[0] = TARGET;
     int cs_index = 1;
     for (int i=0 ; i<SUBSET_SIZE ; i++){
-        unsigned long w_i = SET[i];
+        unsigned long w_i = SUBSET[i];
         for (int j=0 ; j<cs_index ; j++){
             computed_set[cs_index+j] = computed_set[j] - w_i;
             if (computed_set[cs_index+j]==0) {
@@ -130,11 +135,11 @@ bool keepGoing() {
 /**
  * Execute the probabilistic approch of the problem
 */
-void execution_test_seq(unsigned long * set, int set_size, unsigned long target, int loop, int subset_size) {
+void execution_test_seq(unsigned long* set, unsigned long target, size_t set_size, size_t subset_size, int loop) {
+    TARGET = target;
     SET = set;
     SET_SIZE = set_size;
     SUBSET_SIZE = subset_size;
-    TARGET = target;
     LOOP = loop;
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP, SUBSET_SIZE, SET_SIZE); // Recap
     bool soluce = keepGoing(); // execution
