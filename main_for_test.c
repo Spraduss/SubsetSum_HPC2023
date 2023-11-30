@@ -39,22 +39,22 @@ int main() {
     }
     TARGET = SET[12] + SET[23] + SET[84] + SET[90] + SET[0] + SET[99];
     printf("Solution possible : %lu, %lu, %lu, %lu, %lu, %lu, => %lu\n\n", SET[12], SET[23], SET[84], SET[90], SET[0], SET[99], TARGET);
-
+/*
     // Exécution parallèle
     start = clock();
     execution_test_p(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time // : %f\n\n", cpu_time_used);
+*/
 
-/*
     // Exécution séquentielle
     start = clock();
     execution_test_seq(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time SEQ : %f\n\n", cpu_time_used);
-*/
+
     free(SET);
 }
 
