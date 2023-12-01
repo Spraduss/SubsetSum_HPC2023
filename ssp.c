@@ -8,7 +8,9 @@
  */
 
 #include "proba.h"
+#include "proba_p.h"
 #include <stdio.h>
+#include <stddef.h>
 #include <stdlib.h>
 
 // SSP data structure
@@ -100,18 +102,13 @@ void freeSSP(SSP *instance){
 
 // main
 int main(){
-   int n = 10;
+   int n = 100;
    SSP instance;
-   double density = genSSP(n,&instance,100);
+   unsigned long max = 100;
+   double density = genSSP(n,&instance,max);
    printSSP(instance);
 
-   unsigned long set[4] = {22, 44, 59, 86};
-
-   //printf("%i",big_verification(set, 4));
-
-   execution(instance.set, instance.n, instance.target);
-   //execution(instance.set, instance.n, instance.target, 10);
-   //printf("Density is %lf\n",density);
+   execution_seq(instance.set, instance.target, instance.n);
    freeSSP(&instance);
    return 0;
 }

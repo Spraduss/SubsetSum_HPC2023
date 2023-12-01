@@ -95,7 +95,7 @@ bool compute_p(unsigned long* subset_p) {
 bool isIn_p(int * indices, unsigned int indices_size, int target) {
     int i;
     bool end = false;
-    #pragma omp parallel for private(i) shared(end) num_threads(NTHREADS)
+    //#pragma omp parallel for private(i) shared(end) num_threads(NTHREADS)
     for (i=0 ; i<indices_size ; i++){
         if (end) continue;
         if (target==indices[i]) {
@@ -157,6 +157,19 @@ void execution_test_p(unsigned long* set, unsigned long target, size_t set_size,
     SET_SIZE_p = set_size;
     SUBSET_SIZE_p = subset_size;
     LOOP_p = loop;
+    printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p); // Recap
+    bool soluce = keepGoing_p(); // execution
+}
+
+/**
+ * Execute the probabilistic approch of the problem
+*/
+void executiont_p(unsigned long* set, unsigned long target, size_t set_size) {
+    TARGET_p = target;
+    SET_p = set;
+    SET_SIZE_p = set_size;
+    SUBSET_SIZE_p = 10;
+    LOOP_p = 5000000;
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p); // Recap
     bool soluce = keepGoing_p(); // execution
 }

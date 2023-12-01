@@ -122,30 +122,17 @@ void getSubset() {
 bool keepGoing() {
     int iter = 0;
     bool validate = false;
-    // Impact of shuffling task
-    clock_t start_shuffle, end_shuffle;
-    double cpu_time_used_shuffle = ((double) (0.0)) / CLOCKS_PER_SEC;
-    clock_t start_compile, end_compile;
-    double cpu_time_used_compile = ((double) (0.0)) / CLOCKS_PER_SEC;
     // We run "maxIter" iterations (we stop befor if we find a solution)
     while (!validate && iter<LOOP) {
 
-        start_shuffle = clock();
         SUBSET = (unsigned long*)calloc(SUBSET_SIZE, sizeof(unsigned long));
         getSubset();
-        end_shuffle = clock();
-        cpu_time_used_shuffle += ((double) (end_shuffle - start_shuffle)) / CLOCKS_PER_SEC;
 
-        start_compile = clock();
         validate = compute(); // Execute the "stupid" algo on the subset
-        end_compile = clock();
-        cpu_time_used_compile += ((double) (end_compile - start_compile)) / CLOCKS_PER_SEC;
 
         iter++;
         free(SUBSET);
     }
-    printf("Shuffling time : %f\n", cpu_time_used_shuffle);
-    printf("Stupid time : %f\n", cpu_time_used_compile);
     printf("%d, after %i iterations\n", validate, iter);
     return validate;
 }
@@ -161,5 +148,18 @@ void execution_test_seq(unsigned long* set, unsigned long target, size_t set_siz
     SUBSET_SIZE = subset_size;
     LOOP = loop;
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP, SUBSET_SIZE, SET_SIZE); // Recap
+    bool soluce = keepGoing(); // execution
+}
+
+/**
+ * Execute the probabilistic approch of the problem
+*/
+void execution_seq(unsigned long* set, unsigned long target, size_t set_size) {
+    TARGET = target;
+    SET = set;
+    SET_SIZE = set_size;
+    SUBSET_SIZE = 10;
+    LOOP = 5000000;
+    printf("Running with : %i iterations / subset size of %li / set size of : %li\n", LOOP, SUBSET_SIZE, SET_SIZE); // Recap
     bool soluce = keepGoing(); // execution
 }
