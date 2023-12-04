@@ -122,32 +122,15 @@ void getSubset() {
 bool keepGoing() {
     int iter = 0;
     bool validate = false;
-    clock_t start_s;
-    clock_t start_c;
-    clock_t end_s;
-    clock_t end_c;
-    double time_s = 0;
-    double time_c = 0;
     // We run "maxIter" iterations (we stop befor if we find a solution)
     while (!validate && iter<LOOP) {
-
-        start_s = clock();
         SUBSET = (unsigned long*)calloc(SUBSET_SIZE, sizeof(unsigned long));
         getSubset();
-        end_s = clock();
-        time_s += ((double) (end_s - start_s)) / CLOCKS_PER_SEC;
-
-        start_c = clock();
         validate = compute(); // Execute the "stupid" algo on the subset
-        end_c = clock();
-        time_c += ((double) (end_c - start_c)) / CLOCKS_PER_SEC;
-
         iter++;
         free(SUBSET);
     }
     printf("%d, after %i iterations\n", validate, iter);
-    printf("Shuffle : %f\n", time_s);
-    printf("Compute : %f\n", time_c);
     return validate;
 }
 
@@ -172,8 +155,8 @@ void execution_seq(unsigned long* set, unsigned long target, size_t set_size) {
     TARGET = target;
     SET = set;
     SET_SIZE = set_size;
-    SUBSET_SIZE = 10;
-    LOOP = 5000000;
+    SUBSET_SIZE = 20;
+    LOOP = 10000000;
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n", LOOP, SUBSET_SIZE, SET_SIZE); // Recap
     bool soluce = keepGoing(); // execution
 }

@@ -48,9 +48,18 @@ Même si c'est plus long à implémenter, notamment, car il faut s'assurer de ne
 
 ## Variation en fonction de la taille du subset
 
-
-
 ## Implémentation parallèle
 
+## Exécuter le code
 
+Afin d'exécuter les algorithmes, il y a deux options possibles. La fonction "execution_seq" (ou "execution_p" pour l'exécution parallèle) prendra des valeurs de "SUBSET_SIZE" (appelé précédemment k) et de "LOOP" (nombre maximal d'itérations) par défaut (respectivement 20 et 10000000).
+Pour spécifier manuellement ces valeurs, il faut utliser les fonction "executuon_test_seq" ou "execution_test_p".
 
+Dans les deux cas, les paramètres sont les suivants (dans l'ordre) :
+- ```unsigned long* set``` : Le set de nombre considéré dans le problème.
+- ```unsigned long target``` : La somme recherchée dans le set.
+- ```size_t set_size``` : La taille du set.
+- ```size_t subset_size``` : (cas ou la fonction de test est appelée) la taille du subset à considérer.
+- ```int loop``` : (cas ou la fonction de test est appelée) Le nombre maximal d'itérations.
+
+Le programme va alors afficher une solution possible dès qu'il l'aura trouvé, ainsi que le nombre d'itérations .

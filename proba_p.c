@@ -45,7 +45,6 @@ void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero,
     }
     int i;
     // We go through all useful bits
-    //#pragma omp parallel for
     for (i=0 ; i<nbOfConsideredBits ; i++){
         // Creation of the mask to only consider the i-th bit of "indice_of_zero"
         int mask =  1 << i;
@@ -95,7 +94,6 @@ bool compute_p(unsigned long* subset_p) {
 bool isIn_p(int * indices, unsigned int indices_size, int target) {
     int i;
     bool end = false;
-    //#pragma omp parallel for private(i) shared(end) num_threads(NTHREADS)
     for (i=0 ; i<indices_size ; i++){
         if (end) continue;
         if (target==indices[i]) {
@@ -131,21 +129,25 @@ bool keepGoing_p() {
     // Impact of shuffling task
     // We run "maxIter" iterations (we stop befor if we find a solution)
     int iter;
+    int fullIter = 0;
     unsigned long subset_p[SUBSET_SIZE_p];
-    #pragma omp parallel for private(iter, subset_p) shared(validate) num_threads(NTHREADS)
-    for (iter=0 ; iter<(LOOP_p/5) ; iter++) {
-        if (validate) continue;
-        getSubset_p(subset_p);
-        #pragma omp parallel
-        bool tmp = compute_p(subset_p); // Execute the "stupid" algo on the subset
-        
-        #pragma omp critical
+    //#pragma omp parallel for private(iter, subset_p, tmp) shared(validate) num_threads(NTHREADS)
+    for (iter=0 ; iter<(LOOP_p/NTHREADS) ; iter++) {
+        #pragma omp parallel num_threads(NTHREADS) shared(validate) private(tmp)
         {
-            validate = validate || tmp;
+            if (!validate) {//continue;
+                getSubset_p(subset_p);
+                tmp = compute_p(subset_p); // Execute the "stupid" algo on the subset
+                
+                #pragma omp critical
+                {
+                    validate = validate || tmp;
+                    fullIter++;
+                }
+            }
         }
-
     }
-    printf("%d, after %i iterations\n", validate, iter);
+    printf("%d, after %i iterations (non critical incr %i)\n", validate, fullIter, iter);
     return validate;
 }
 
@@ -170,8 +172,15 @@ void executiont_p(unsigned long* set, unsigned long target, size_t set_size) {
     TARGET_p = target;
     SET_p = set;
     SET_SIZE_p = set_size;
-    SUBSET_SIZE_p = 10;
-    LOOP_p = 5000000;
+    SUBSET_SIZE_p = 20;
+    LOOP_p = 10000000;
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p); // Recap
     bool soluce = keepGoing_p(); // execution
+}
+
+/**
+ * Set the number of threads used by the programm
+*/
+void set_number_of_threads(int nbThreads) {
+    NTHREADS = nbThreads;
 }
