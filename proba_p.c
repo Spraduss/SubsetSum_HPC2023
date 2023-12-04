@@ -12,30 +12,16 @@ unsigned long * SET_p;
 size_t SET_SIZE_p;
 size_t SUBSET_SIZE_p;
 int LOOP_p;
-
-/**
- * Print a tab
-*/
-void printSet_p(unsigned long * tab, int n) {
-    printf("thread %i [", omp_get_thread_num());
-    for (int i=0 ; i<n ; i++) {
-        if (i==n-1) {
-            printf("%lu", tab[i]);
-        } else {
-            printf("%lu, ", tab[i]);
-        }
-    }
-    printf("]\n");
-}
+unsigned int* SEEDS;
 
 /*
 [t, t-w1, t-w2, t-w1-w2, t-w3, t-w1-w3, t-w1-w2-w3, t-w4, t-w1-w4, t-w2-w4, t-w1-w2-w4, t-w3-w4, t-w1-w3-w4, t-w1-w2-w3-w4]
 [0,    1,    2,       3,    4        5,          6,    7        8,       9,         10,      11,         12,            13]
 
-indice vers le binaire
-Le i-ème bit indique si wi est inclu dans la solution (1 = oui / 0 = non)
+convert index to binary (2 become 10)
+The i-th bit indicate if w_i is part of the solution (1 = yes / 0 = no)
 
-0000 /
+index => Solution
 0001 => w1 / (1)
 0010 => w2 / (2)
 0011 => W1 & w2 / (1+2)
@@ -125,17 +111,17 @@ bool isIn_p(int * indices, unsigned int indices_size, int target) {
  * Randomly pick "SUBSET_SIZE" indices between 0 and "SET_SIZE", and fill the subset with the corresponding values
 */
 void getSubset_p(unsigned long* subset_p) {
-    int * indices = (int*)calloc(SUBSET_SIZE_p, sizeof(int));
+    int indices[SUBSET_SIZE_p];
     int i;
+    int randomIndice;
     for (i=0 ; i<SUBSET_SIZE_p ; i++) {
-        int randomIndice = rand() % SET_SIZE_p;
+        randomIndice = rand() % SET_SIZE_p;
         while (isIn_p(indices, i, randomIndice)) {
             randomIndice = (randomIndice + 1)%SET_SIZE_p;
         }
         indices[i] = randomIndice;
         subset_p[i] = SET_p[randomIndice];
     }
-    free(indices);
 }
 
 /**
@@ -148,18 +134,16 @@ bool keepGoing_p() {
     // We run "maxIter" iterations (we stop befor if we find a solution)
     int iter;
     int fullIter = 0; // Count the effective number of iteration of every threads
-    unsigned long subset_p[SUBSET_SIZE_p];
     for (iter=0 ; iter<(LOOP_p/NTHREADS) ; iter++) {
         #pragma omp parallel num_threads(NTHREADS) shared(validate, fullIter) private(tmp)
         {
-            //srand(time(NULL));
-            if (!validate) {//continue;
+            if (!validate) {
+                unsigned long subset_p[SUBSET_SIZE_p];
                 getSubset_p(subset_p);
                 tmp = compute_p(subset_p); // Execute the "stupid" algo on the subset
                 
                 #pragma omp critical
                 {
-                    printSet_p(subset_p, SUBSET_SIZE_p);
                     validate = validate || tmp;
                     fullIter++;
                 }
@@ -169,7 +153,6 @@ bool keepGoing_p() {
     printf("%d, after %i iterations\n", validate, fullIter);
     return validate;
 }
-
 
 /**
  * Execute the probabilistic approch of the problem
@@ -191,7 +174,7 @@ void executiont_p(unsigned long* set, unsigned long target, size_t set_size) {
     TARGET_p = target;
     SET_p = set;
     SET_SIZE_p = set_size;
-    SUBSET_SIZE_p = 20;
+    SUBSET_SIZE_p = 10;
     LOOP_p = 10000000;
     printf("Running with : %i iterations / subset size of %li / set size of : %li / Nb of threads : %i\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p, NTHREADS); // Recap
     bool soluce = keepGoing_p(); // execution

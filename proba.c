@@ -103,7 +103,7 @@ bool isIn(int * indices, unsigned int indices_size, int target) {
  * Randomly pick "SUBSET_SIZE" indices between 0 and "SET_SIZE", and fill the subset with the corresponding values
 */
 void getSubset() {
-    int * indices = (int*)calloc(SUBSET_SIZE, sizeof(int));
+    int indices[SUBSET_SIZE];
     int i;
     for (i=0 ; i<SUBSET_SIZE ; i++) {
         int randomIndice = rand() % SET_SIZE;
@@ -113,7 +113,6 @@ void getSubset() {
         indices[i] = randomIndice;
         SUBSET[i] = SET[randomIndice];
     }
-    free(indices);
 }
 
 /**
@@ -155,7 +154,7 @@ void execution_seq(unsigned long* set, unsigned long target, size_t set_size) {
     TARGET = target;
     SET = set;
     SET_SIZE = set_size;
-    SUBSET_SIZE = 20;
+    SUBSET_SIZE = 10;
     LOOP = 10000000;
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n", LOOP, SUBSET_SIZE, SET_SIZE); // Recap
     bool soluce = keepGoing(); // execution
