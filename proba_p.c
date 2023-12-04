@@ -13,6 +13,21 @@ size_t SET_SIZE_p;
 size_t SUBSET_SIZE_p;
 int LOOP_p;
 
+/**
+ * Print a tab
+*/
+void printSet_p(unsigned long * tab, int n) {
+    printf("thread %i [", omp_get_thread_num());
+    for (int i=0 ; i<n ; i++) {
+        if (i==n-1) {
+            printf("%lu", tab[i]);
+        } else {
+            printf("%lu, ", tab[i]);
+        }
+    }
+    printf("]\n");
+}
+
 /*
 [t, t-w1, t-w2, t-w1-w2, t-w3, t-w1-w3, t-w1-w2-w3, t-w4, t-w1-w4, t-w2-w4, t-w1-w2-w4, t-w3-w4, t-w1-w3-w4, t-w1-w2-w3-w4]
 [0,    1,    2,       3,    4        5,          6,    7        8,       9,         10,      11,         12,            13]
@@ -37,7 +52,7 @@ Le i-ème bit indique si wi est inclu dans la solution (1 = oui / 0 = non)
 1111 => w1 & w2 & w3 & w4 / (1+2+3+4)
 */
 void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero, unsigned long* subset_p) {
-    printf("Precise solution : [ ");
+    printf("Precise solution by Thread %d: [ ", omp_get_thread_num());
     int nbOfConsideredBits = 0;
     // We count the number of useful bits
     while(pow(2, nbOfConsideredBits)<indice_of_zero) {
@@ -76,7 +91,10 @@ bool compute_p(unsigned long* subset_p) {
         for (int j=0 ; j<cs_index ; j++){
             computed_set[cs_index+j] = computed_set[j] - w_i;
             if (computed_set[cs_index+j]==0) {
-                PrintPreciseSolution_p(computed_set, (cs_index+j), subset_p);
+                #pragma omp critical
+                {
+                    PrintPreciseSolution_p(computed_set, (cs_index+j), subset_p);
+                }
                 free(computed_set);
                 return true;
             }
@@ -129,25 +147,26 @@ bool keepGoing_p() {
     // Impact of shuffling task
     // We run "maxIter" iterations (we stop befor if we find a solution)
     int iter;
-    int fullIter = 0;
+    int fullIter = 0; // Count the effective number of iteration of every threads
     unsigned long subset_p[SUBSET_SIZE_p];
-    //#pragma omp parallel for private(iter, subset_p, tmp) shared(validate) num_threads(NTHREADS)
     for (iter=0 ; iter<(LOOP_p/NTHREADS) ; iter++) {
-        #pragma omp parallel num_threads(NTHREADS) shared(validate) private(tmp)
+        #pragma omp parallel num_threads(NTHREADS) shared(validate, fullIter) private(tmp)
         {
+            //srand(time(NULL));
             if (!validate) {//continue;
                 getSubset_p(subset_p);
                 tmp = compute_p(subset_p); // Execute the "stupid" algo on the subset
                 
                 #pragma omp critical
                 {
+                    printSet_p(subset_p, SUBSET_SIZE_p);
                     validate = validate || tmp;
                     fullIter++;
                 }
             }
         }
     }
-    printf("%d, after %i iterations (non critical incr %i)\n", validate, fullIter, iter);
+    printf("%d, after %i iterations\n", validate, fullIter);
     return validate;
 }
 
@@ -161,12 +180,12 @@ void execution_test_p(unsigned long* set, unsigned long target, size_t set_size,
     SET_SIZE_p = set_size;
     SUBSET_SIZE_p = subset_size;
     LOOP_p = loop;
-    printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p); // Recap
+    printf("Running with : %i iterations / subset size of %li / set size of : %li / Nb of threads : %i\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p, NTHREADS); // Recap
     bool soluce = keepGoing_p(); // execution
 }
 
 /**
- * Execute the probabilistic approch of the problem
+ * Execute the probabilistic approch of the problem with default values for SUBSET_SIZE_p and LOOP_p
 */
 void executiont_p(unsigned long* set, unsigned long target, size_t set_size) {
     TARGET_p = target;
@@ -174,7 +193,7 @@ void executiont_p(unsigned long* set, unsigned long target, size_t set_size) {
     SET_SIZE_p = set_size;
     SUBSET_SIZE_p = 20;
     LOOP_p = 10000000;
-    printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p); // Recap
+    printf("Running with : %i iterations / subset size of %li / set size of : %li / Nb of threads : %i\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p, NTHREADS); // Recap
     bool soluce = keepGoing_p(); // execution
 }
 

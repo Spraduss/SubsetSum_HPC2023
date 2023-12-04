@@ -51,7 +51,7 @@ Même si c'est plus long à implémenter, notamment, car il faut s'assurer de ne
 ## Implémentation parallèle
 
 ## Exécuter le code
-
+### Inputs
 Afin d'exécuter les algorithmes, il y a deux options possibles. La fonction "execution_seq" (ou "execution_p" pour l'exécution parallèle) prendra des valeurs de "SUBSET_SIZE" (appelé précédemment k) et de "LOOP" (nombre maximal d'itérations) par défaut (respectivement 20 et 10000000).
 Pour spécifier manuellement ces valeurs, il faut utliser les fonction "executuon_test_seq" ou "execution_test_p".
 
@@ -62,4 +62,21 @@ Dans les deux cas, les paramètres sont les suivants (dans l'ordre) :
 - ```size_t subset_size``` : (cas ou la fonction de test est appelée) la taille du subset à considérer.
 - ```int loop``` : (cas ou la fonction de test est appelée) Le nombre maximal d'itérations.
 
-Le programme va alors afficher une solution possible dès qu'il l'aura trouvé, ainsi que le nombre d'itérations .
+### Outputs
+
+Lors de l'exécution, le programme va commencer par indiquer 3 des paramètres utilisés :
+- Le nombre maximal d'itérations.
+- La taille du subset.
+- La taille du set.
+- Le nombre de threads utilisés dans le cas d'une exécution parallèle.
+
+L'output finale du programme peux prendre deux formes différente. Dans le cas où aucune solution n'a été trouvée, l'affiche est le suivant :
+
+![Exemple of failed execution](./images/failed_exemple.png)
+
+Le "0" indique qu'aucune solution n'a été trouvée, et le nombre d'itération est rappelé.
+Enfin le temps écoulé en secondes (ici presque 34.5 secondes pour 10000000 itérations réparties sur 8 threads)
+
+Dans le cas 
+
+![Exemple of good execution](./images/output_parallel.png)

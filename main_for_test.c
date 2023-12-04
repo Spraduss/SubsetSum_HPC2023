@@ -35,7 +35,7 @@ int main() {
     unsigned long TARGET;
     size_t SET_SIZE = 10000;
     size_t SUBSET_SIZE = 10;
-    int LOOP = 10000000;
+    int LOOP = 10;
     unsigned long max = 300000000;
 
     unsigned long * SET = (unsigned long*)calloc(SET_SIZE, sizeof(unsigned long));
@@ -48,7 +48,7 @@ int main() {
     TARGET = SET[12] + SET[23] + SET[84] + SET[90] + SET[0] + SET[99];
     printf("Solution possible : %lu, %lu, %lu, %lu, %lu, %lu, => %lu\n\n", SET[12], SET[23], SET[84], SET[90], SET[0], SET[99], TARGET);
 
-    int nbOfThreads = 8;
+    int nbOfThreads = 5;
     set_number_of_threads(nbOfThreads);
     
     clock_t start, end;
