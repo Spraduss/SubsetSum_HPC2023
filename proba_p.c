@@ -127,14 +127,16 @@ void getSubset_p(unsigned long* subset_p) {
 */
 bool keepGoing_p() {
     bool validate = false;
+    bool tmp = false;
     // Impact of shuffling task
     // We run "maxIter" iterations (we stop befor if we find a solution)
     int iter;
     unsigned long subset_p[SUBSET_SIZE_p];
     #pragma omp parallel for private(iter, subset_p) shared(validate) num_threads(NTHREADS)
-    for (iter=0 ; iter<LOOP_p ; iter++) {
+    for (iter=0 ; iter<(LOOP_p/5) ; iter++) {
         if (validate) continue;
         getSubset_p(subset_p);
+        #pragma omp parallel
         bool tmp = compute_p(subset_p); // Execute the "stupid" algo on the subset
         
         #pragma omp critical
