@@ -23,33 +23,44 @@ void printSet(unsigned long * tab, int n) {
 
 int main() {
     unsigned long TARGET;
-    size_t SET_SIZE = 10000;
-    size_t SUBSET_SIZE = 25;
+    size_t SET_SIZE = 1000000000;
+    size_t SUBSET_SIZE = 15;
     int LOOP = 10000000;
     unsigned long max = 300000000;
+    int nbOfThreads = 10;
 
     unsigned long * SET = (unsigned long*)calloc(SET_SIZE, sizeof(unsigned long));
 
     // Remplissage du tableau avec des nombres
     int i;
+    #pragma omp parallel for private(i) num_threads(nbOfThreads)
     for (i=0 ; i<SET_SIZE ; i++) {
         SET[i] = 2 * (rand()%max);
     }
     TARGET = SET[12] + SET[23] + SET[84] + SET[90] + SET[0] + SET[99];
     printf("Solution possible : %lu, %lu, %lu, %lu, %lu, %lu, => %lu\n\n", SET[12], SET[23], SET[84], SET[90], SET[0], SET[99], TARGET);
 
-    int nbOfThreads = 10;
     set_number_of_threads(nbOfThreads);
     
-    clock_t start, end;
-    double cpu_time_used;
+    int boucle = 10;
+    clock_t start_p, start, end_p, end;
+    double t_p, t;
 
+    start_p = clock();
+    for (int i=0;i<boucle;i++) {
+        execution_test_p(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
+    }
+    end_p = clock();
+    t_p = (((double) (end_p - start_p)) / CLOCKS_PER_SEC)/nbOfThreads / boucle;
+    /*************************************************************/
     start = clock();
-    //execution_test_seq(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
-    execution_test_p(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
+    for (int i=0;i<boucle;i++){
+        execution_test_seq(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
+    }
     end = clock();
-    cpu_time_used = (((double) (end - start)) / CLOCKS_PER_SEC)/nbOfThreads;
-    printf("time : %f\n\n", cpu_time_used);
+    t = (((double) (end - start)) / CLOCKS_PER_SEC) / boucle;
+    printf("\ntime Seq: %f\n", t);
+    printf("time // : %f\n\n", t_p);
     free(SET);
 }
 
