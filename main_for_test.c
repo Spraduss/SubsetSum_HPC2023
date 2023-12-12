@@ -23,11 +23,11 @@ void printSet(unsigned long * tab, int n) {
 
 int main() {
     unsigned long TARGET;
-    size_t SET_SIZE = 1000000000;
+    size_t SET_SIZE = 1000000;
     size_t SUBSET_SIZE = 15;
     int LOOP = 10000000;
     unsigned long max = 300000000;
-    int nbOfThreads = 10;
+    int nbOfThreads = omp_get_max_threads();
 
     unsigned long * SET = (unsigned long*)calloc(SET_SIZE, sizeof(unsigned long));
 
@@ -42,10 +42,11 @@ int main() {
 
     set_number_of_threads(nbOfThreads);
     
-    int boucle = 10;
+    int boucle = 1;
     clock_t start_p, start, end_p, end;
     double t_p, t;
 
+    /*************************************************************/
     start_p = clock();
     for (int i=0;i<boucle;i++) {
         execution_test_p(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
@@ -59,6 +60,7 @@ int main() {
     }
     end = clock();
     t = (((double) (end - start)) / CLOCKS_PER_SEC) / boucle;
+    /*************************************************************/
     printf("\ntime Seq: %f\n", t);
     printf("time // : %f\n\n", t_p);
     free(SET);

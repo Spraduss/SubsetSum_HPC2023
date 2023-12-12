@@ -61,22 +61,24 @@ void PrintPreciseSolution_p(unsigned long* processed_subset, int indice_of_zero,
 
 /**
  * Calcule "stupide" de la solution sur le sous-ensemble
+ * The computed set will contain :
+ *    [target (t), t-w1, t-w2, t-w1-w2, t-w3, t-w1-w3, t-w1-w2-w3, .....] => Stupid solution for subset sum
+ * We keep filling it until we find a zero or the tab is full
 */
 bool compute_p(unsigned long* subset_p) {
-    int computed_set_size = pow(2, SUBSET_SIZE_p); // size of the set containing all the possibilities ( 2^n )
+    // Initialize the tab containing all the computations (size of 2^Subset_size)
+    int computed_set_size = pow(2, SUBSET_SIZE_p);
     unsigned long* computed_set = (unsigned long*)calloc(computed_set_size, sizeof(unsigned long));
-    /* Execution of the algorithm presented within the article
-    The computed set will contain :
-        [target (t), t-w1, t-w2, t-w1-w2, t-w3, t-w1-w3, t-w1-w2-w3, .....] => Stupid solution for subset sum
-    We keep filling it until we find a zero or the tab is full
-    */
+
     computed_set[0] = TARGET_p;
     int cs_index = 1;
     for (int i=0 ; i<SUBSET_SIZE_p ; i++){
         unsigned long w_i = subset_p[i];
+        // We go back in the tab to consider every previous computations
         for (int j=0 ; j<cs_index ; j++){
             computed_set[cs_index+j] = computed_set[j] - w_i;
             if (computed_set[cs_index+j]==0) {
+                // We found a solution
                 #pragma omp critical
                 {
                     PrintPreciseSolution_p(computed_set, (cs_index+j), subset_p);
@@ -130,11 +132,11 @@ void getSubset_p(unsigned long* subset_p) {
 bool keepGoing_p() {
     bool validate = false;
     bool tmp = false;
-    // Impact of shuffling task
     // We run "maxIter" iterations (we stop befor if we find a solution)
     int iter;
     int fullIter = 0; // Count the effective number of iteration of every threads
     for (iter=0 ; iter<(LOOP_p/NTHREADS) ; iter++) {
+        if (validate) break;
         #pragma omp parallel num_threads(NTHREADS) shared(validate, fullIter) private(tmp)
         {
             if (!validate) {
@@ -142,6 +144,7 @@ bool keepGoing_p() {
                 getSubset_p(subset_p);
                 tmp = compute_p(subset_p); // Execute the "stupid" algo on the subset
                 
+                // Critical region for changing the value of validate and counting the total number of iteration
                 #pragma omp critical
                 {
                     validate = validate || tmp;
