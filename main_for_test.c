@@ -33,6 +33,7 @@ int main() {
 
     // Remplissage du tableau avec des nombres
     int i;
+    srand(time(NULL));
     #pragma omp parallel for private(i) num_threads(nbOfThreads)
     for (i=0 ; i<SET_SIZE ; i++) {
         SET[i] = 2 * (rand()%max);
@@ -42,24 +43,24 @@ int main() {
 
     set_number_of_threads(nbOfThreads);
     
-    int boucle = 1;
+    int repetitionParExec = 1;
     clock_t start_p, start, end_p, end;
     double t_p, t;
 
     /*************************************************************/
     start_p = clock();
-    for (int i=0;i<boucle;i++) {
+    for (int i=0;i<repetitionParExec;i++) {
         execution_test_p(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
     }
     end_p = clock();
-    t_p = (((double) (end_p - start_p)) / CLOCKS_PER_SEC)/nbOfThreads / boucle;
+    t_p = (((double) (end_p - start_p)) / CLOCKS_PER_SEC)/nbOfThreads / repetitionParExec;
     /*************************************************************/
     start = clock();
-    for (int i=0;i<boucle;i++){
+    for (int i=0;i<repetitionParExec;i++){
         execution_test_seq(SET, TARGET, SET_SIZE, SUBSET_SIZE, LOOP);
     }
     end = clock();
-    t = (((double) (end - start)) / CLOCKS_PER_SEC) / boucle;
+    t = (((double) (end - start)) / CLOCKS_PER_SEC) / repetitionParExec;
     /*************************************************************/
     printf("\ntime Seq: %f\n", t);
     printf("time // : %f\n\n", t_p);

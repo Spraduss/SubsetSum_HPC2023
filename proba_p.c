@@ -184,7 +184,7 @@ void executiont_p(unsigned long* set, unsigned long target, size_t set_size) {
 }
 
 /**
- * Set the number of threads used by the programm
+ * Set the number of threads used by the programm (set at 5 by default)
 */
 void set_number_of_threads(int nbThreads) {
     NTHREADS = nbThreads;

@@ -58,22 +58,24 @@ void PrintPreciseSolution(unsigned long* processed_subset, int indice_of_zero) {
 
 /**
  * Calcule "stupide" de la solution sur le sous-ensemble
+ * The computed set will contain :
+ *  [target (t), t-w1, t-w2, t-w1-w2, t-w3, t-w1-w3, t-w1-w2-w3, .....] => Stupid solution for subset sum
+ * We keep filling it until we find a zero or the tab is full
 */
 bool compute() {
-    int computed_set_size = pow(2, SUBSET_SIZE); // size of the set containing all the possibilities ( 2^n )
+    // Initialize the tab containing all the computations (size of 2^Subset_size)
+    int computed_set_size = pow(2, SUBSET_SIZE);
     unsigned long* computed_set = (unsigned long*)calloc(computed_set_size, sizeof(unsigned long));
-    /* Execution of the algorithm presented within the article
-    The computed set will contain :
-        [target (t), t-w1, t-w2, t-w1-w2, t-w3, t-w1-w3, t-w1-w2-w3, .....] => Stupid solution for subset sum
-    We keep filling it until we find a zero or the tab is full
-    */
+    
     computed_set[0] = TARGET;
     int cs_index = 1;
     for (int i=0 ; i<SUBSET_SIZE ; i++){
         unsigned long w_i = SUBSET[i];
+        // We go back in the tab to consider every previous computations
         for (int j=0 ; j<cs_index ; j++){
             computed_set[cs_index+j] = computed_set[j] - w_i;
             if (computed_set[cs_index+j]==0) {
+                // We found a solution
                 PrintPreciseSolution(computed_set, (cs_index+j));
                 free(computed_set);
                 return true;
@@ -84,7 +86,6 @@ bool compute() {
     free(computed_set);
     return false;
 }
-
 
 /**
  * Check if the number "target" is in the tab "indices"
@@ -132,7 +133,6 @@ bool keepGoing() {
     printf("%d, after %i iterations\n", validate, iter);
     return validate;
 }
-
 
 /**
  * Execute the probabilistic approch of the problem
