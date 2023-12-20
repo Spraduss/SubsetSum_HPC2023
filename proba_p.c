@@ -81,7 +81,7 @@ bool compute_p(unsigned long* subset_p) {
                 // We found a solution
                 #pragma omp critical
                 {
-                    PrintPreciseSolution_p(computed_set, (cs_index+j), subset_p);
+                    //PrintPreciseSolution_p(computed_set, (cs_index+j), subset_p);
                 }
                 free(computed_set);
                 return true;
@@ -153,7 +153,7 @@ bool keepGoing_p() {
             }
         }
     }
-    printf("%d, after %i iterations\n", validate, fullIter);
+    //printf("%d, after %i iterations\n", validate, fullIter);
     return validate;
 }
 
@@ -166,7 +166,7 @@ void execution_test_p(unsigned long* set, unsigned long target, size_t set_size,
     SET_SIZE_p = set_size;
     SUBSET_SIZE_p = subset_size;
     LOOP_p = loop;
-    printf("Running with : %i iterations / subset size of %li / set size of : %li / Nb of threads : %i\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p, NTHREADS); // Recap
+    //printf("Running with : %i iterations / subset size of %li / set size of : %li / Nb of threads : %i\n",LOOP_p, SUBSET_SIZE_p, SET_SIZE_p, NTHREADS); // Recap
     bool soluce = keepGoing_p(); // execution
 }
 
