@@ -76,7 +76,7 @@ bool compute() {
             computed_set[cs_index+j] = computed_set[j] - w_i;
             if (computed_set[cs_index+j]==0) {
                 // We found a solution
-                //PrintPreciseSolution(computed_set, (cs_index+j));
+                PrintPreciseSolution(computed_set, (cs_index+j));
                 free(computed_set);
                 return true;
             }
@@ -130,7 +130,7 @@ bool keepGoing() {
         iter++;
         free(SUBSET);
     }
-    //printf("%d, after %i iterations\n", validate, iter);
+    printf("%d, after %i iterations\n", validate, iter);
     return validate;
 }
 
@@ -143,7 +143,7 @@ void execution_test_seq(unsigned long* set, unsigned long target, size_t set_siz
     SET_SIZE = set_size;
     SUBSET_SIZE = subset_size;
     LOOP = loop;
-    //printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP, SUBSET_SIZE, SET_SIZE); // Recap
+    printf("Running with : %i iterations / subset size of %li / set size of : %li\n",LOOP, SUBSET_SIZE, SET_SIZE); // Recap
     bool soluce = keepGoing(); // execution
 }
 
@@ -154,7 +154,7 @@ void execution_seq(unsigned long* set, unsigned long target, size_t set_size) {
     TARGET = target;
     SET = set;
     SET_SIZE = set_size;
-    SUBSET_SIZE = 10;
+    SUBSET_SIZE = 15;
     LOOP = 10000000;
     printf("Running with : %i iterations / subset size of %li / set size of : %li\n", LOOP, SUBSET_SIZE, SET_SIZE); // Recap
     bool soluce = keepGoing(); // execution
