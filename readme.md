@@ -1,6 +1,8 @@
 # Présentation de l'algorithme
 L'algorithme qui a été choisi est le second présenté dans l'article : [New Algorithms for Subset Sum Problem, by Zhengjun Cao and Lihua Liu](https://arxiv.org/pdf/1807.02611.pdf).
 Il s'agit d'un algorithme probabiliste, c'est-à-dire, qu'il utilise de l'aléatoire.
+
+Le code de la partie séquentielle est dans le fichier [proba.c](./proba.c) et celui de la partie parallèle dans [proba_p.c](./proba_p.c).
 ## Principe de base en séquentiel
 Le principe du code est explicité aux pages 5 et 6 de l'article. Il se compose en 4 étapes :
 - Mélanger le set de départ et en récupérer une partie (un subset).
